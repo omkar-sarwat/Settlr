@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth transitions enabled globally (200-300ms per design system) */
+* {
+  @apply transition-all duration-200;
+}
+
+/* Disable transitions for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    @apply !transition-none !duration-0;
+  }
+}
+
+/* Focus visible for keyboard navigation — visible focus states required */
+button, a, input, select, textarea {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand;
+}
+
+/* Smooth scroll behavior */
+html {
+  @apply scroll-smooth;
+}
+
+/* Dark mode OLED background */
+body {
+  @apply bg-bg-primary text-text-primary;
+}
+

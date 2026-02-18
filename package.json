@@ -1,0 +1,27 @@
+{
+  "name": "settlr",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm -w api-gateway run dev",
+    "dev:account": "npm -w account-service run dev",
+    "dev:payment": "npm -w payment-service run dev",
+    "dev:fraud": "npm -w fraud-service run dev",
+    "dev:webhook": "npm -w webhook-service run dev",
+    "dev:notification": "npm -w notification-service run dev",
+    "dev:ui": "cd settlr-ui && npm run dev",
+    "type-check": "tsc -b",
+    "clean": "rimraf packages/*/dist services/*/dist"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "dotenv": "^17.3.1",
+    "pg": "^8.18.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  }
+}

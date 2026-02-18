@@ -1,0 +1,15 @@
+{
+  "name": "@settlr/kafka",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./producer.ts",
+  "types": "./producer.ts",
+  "exports": {
+    ".": "./producer.ts",
+    "./producer": "./producer.ts",
+    "./consumer": "./consumer.ts"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  }
+}

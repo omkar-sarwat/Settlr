@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@settlr/types": ["../../packages/types/index.ts"],
+      "@settlr/types/*": ["../../packages/types/*"],
+      "@settlr/config": ["../../packages/config/index.ts"],
+      "@settlr/logger": ["../../packages/logger/index.ts"],
+      "@settlr/kafka/*": ["../../packages/kafka/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "../../types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}
