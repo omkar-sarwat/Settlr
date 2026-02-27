@@ -1,8 +1,6 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/omkar-sarwat/Settlr/main/settlr_logo_final_clean.svg" alt="Settlr Logo" width="200" />
 
-  <h1>Settlr</h1>
-
   <p><strong>A Production-Grade Distributed Payment Processing Platform</strong></p>
 
   <p><em>"I got curious about how UPI moves money between banks in under 2 seconds.<br/>I tried to understand the architecture and built a simplified version from scratch. That curiosity became Settlr."</em></p>
