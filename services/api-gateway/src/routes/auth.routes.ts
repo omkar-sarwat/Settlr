@@ -10,6 +10,7 @@ import { z } from 'zod';
 export const authRouter = Router();
 
 const registerSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
   email: z.string().email(),
   phone: z.string().max(20).optional(),
   password: z.string().min(8).max(128),
@@ -54,3 +55,7 @@ authRouter.post('/register', validate(registerSchema), (req, res) => proxy(req, 
 authRouter.post('/login', validate(loginSchema), (req, res) => proxy(req, res, 'POST', '/auth/login'));
 authRouter.post('/refresh', validate(refreshSchema), (req, res) => proxy(req, res, 'POST', '/auth/refresh'));
 authRouter.post('/logout', authMiddleware, (req, res) => proxy(req, res, 'POST', '/auth/logout'));
+
+// Profile routes (protected)
+authRouter.get('/profile', authMiddleware, (req, res) => proxy(req, res, 'GET', '/auth/profile'));
+authRouter.patch('/profile', authMiddleware, (req, res) => proxy(req, res, 'PATCH', '/auth/profile'));

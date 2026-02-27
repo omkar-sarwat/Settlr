@@ -1,95 +1,141 @@
-// SendMoneyPage — 3-step flow: (1) Recipient, (2) Amount, (3) Confirm
+/**
+ * Send Money Page
+ * 
+ * 3-step flow for sending money:
+ * 1. Select recipient (search or recent)
+ * 2. Enter amount and purpose
+ * 3. Review and confirm transaction
+ * 
+ * Each step slides in/out with smooth transitions.
+ * Uses stepper UI to show progress.
+ */
+
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Send } from 'lucide-react';
-import { getMyAccounts } from '../api/account.api';
-import { StepIndicator } from '../components/send/StepIndicator';
-import { RecipientStep } from '../components/send/RecipientStep';
-import { AmountStep } from '../components/send/AmountStep';
-import { ConfirmStep } from '../components/send/ConfirmStep';
-import type { SendStep, RecipientInfo, SendMoneyFlowState } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { PageWrapper } from '@/components/layout/PageWrapper';
+import { GlassCard } from '@/components/ui/GlassCard';
+import {
+  RecipientSearch,
+  AmountInput,
+  ReviewAndConfirm,
+  Stepper,
+  type Recipient,
+} from '@/components/sendmoney';
+import { slideInRight, slideInLeft } from '@/animations/variants';
+import { useAccounts } from '@/hooks/useAccounts';
 
-/** Send Money — manages step state and passes props to child step components */
+const STEPS = [
+  { label: 'Recipient', description: 'Who to send to' },
+  { label: 'Amount', description: 'How much to send' },
+  { label: 'Confirm', description: 'Review & send' },
+];
+
 export function SendMoneyPage() {
-  const [state, setState] = useState<SendMoneyFlowState>({
-    step: 1,
-    recipient: null,
-    amountPaise: 0,
-    description: '',
-  });
+  const navigate = useNavigate();
+  const { data: accountsData } = useAccounts();
+  
+  const [currentStep, setCurrentStep] = useState(0);
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
 
-  // Fetch account for fromAccountId
-  const { data: accountsData } = useQuery({
-    queryKey: ['accounts'],
-    queryFn: getMyAccounts,
-    staleTime: 30_000,
-  });
+  // Form state
+  const [selectedRecipient, setSelectedRecipient] = useState<Recipient | null>(null);
+  const [amountPaise, setAmountPaise] = useState(0);
+  const [purpose, setPurpose] = useState('');
 
+  // Get primary account data
   const primaryAccount = accountsData?.data?.[0];
+  const availableBalance = primaryAccount?.balance || 0;
+  const accountNumber = primaryAccount?.id || '';
 
-  // Step navigation helpers
-  function goToStep(step: SendStep) {
-    setState((prev) => ({ ...prev, step }));
-  }
+  // Navigation handlers
+  const goToStep = (step: number, dir: 'forward' | 'backward' = 'forward') => {
+    setDirection(dir);
+    setCurrentStep(step);
+  };
 
-  function setRecipient(recipient: RecipientInfo) {
-    setState((prev) => ({ ...prev, recipient, step: 2 }));
-  }
+  const handleSelectRecipient = (recipient: Recipient) => {
+    setSelectedRecipient(recipient);
+    goToStep(1, 'forward');
+  };
 
-  function setAmount(amountPaise: number, description: string) {
-    setState((prev) => ({ ...prev, amountPaise, description, step: 3 }));
-  }
+  const handleAmountSubmit = (amount: number, purposeText: string) => {
+    setAmountPaise(amount);
+    setPurpose(purposeText);
+    goToStep(2, 'forward');
+  };
 
-  function resetFlow() {
-    setState({ step: 1, recipient: null, amountPaise: 0, description: '' });
-  }
+  const handleSuccess = () => {
+    navigate('/dashboard');
+  };
+
+  // Animation variants based on direction
+  const variants = direction === 'forward' ? slideInRight : slideInLeft;
 
   return (
-    <div className="max-w-lg mx-auto space-y-8">
-      {/* Page header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-brand-muted rounded-full flex items-center justify-center">
-          <Send className="w-5 h-5 text-brand-light" />
-        </div>
+    <PageWrapper>
+      {/* Header */}
+      <div className="mb-8 flex items-center gap-4">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="p-2 rounded-lg hover:bg-bg-elevated text-text-tertiary hover:text-text-primary transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
         <div>
-          <h1 className="text-xl font-bold text-text-primary">Send Money</h1>
-          <p className="text-sm text-text-secondary">Transfer funds instantly</p>
+          <h1 className="text-3xl font-bold text-text-primary">Send Money</h1>
+          <p className="text-text-secondary mt-1">
+            Quick and secure transfers to any account
+          </p>
         </div>
       </div>
 
-      {/* Step progress indicator */}
-      <StepIndicator currentStep={state.step} />
+      {/* Stepper */}
+      <Stepper steps={STEPS} currentStep={currentStep} />
 
-      {/* Step content */}
-      <div className="bg-bg-secondary rounded-card shadow-card p-6 border border-bg-border">
-        {state.step === 1 && (
-          <RecipientStep
-            onSelect={setRecipient}
-            initialRecipient={state.recipient}
-          />
-        )}
+      {/* Step Content */}
+      <div className="max-w-2xl mx-auto">
+        <GlassCard variant="elevated" className="p-8">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={currentStep}
+              custom={direction}
+              variants={variants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {/* Step 1: Recipient Search */}
+              {currentStep === 0 && (
+                <RecipientSearch onSelectRecipient={handleSelectRecipient} />
+              )}
 
-        {state.step === 2 && state.recipient && (
-          <AmountStep
-            recipient={state.recipient}
-            initialAmount={state.amountPaise}
-            initialDescription={state.description}
-            onConfirm={setAmount}
-            onBack={() => goToStep(1)}
-          />
-        )}
+              {/* Step 2: Amount Input */}
+              {currentStep === 1 && selectedRecipient && (
+                <AmountInput
+                  availableBalancePaise={availableBalance}
+                  onSubmit={handleAmountSubmit}
+                  onBack={() => goToStep(0, 'backward')}
+                />
+              )}
 
-        {state.step === 3 && state.recipient && primaryAccount && (
-          <ConfirmStep
-            fromAccountId={primaryAccount.id}
-            recipient={state.recipient}
-            amountPaise={state.amountPaise}
-            description={state.description}
-            onBack={() => goToStep(2)}
-            onReset={resetFlow}
-          />
-        )}
+              {/* Step 3: Review & Confirm */}
+              {currentStep === 2 && selectedRecipient && (
+                <ReviewAndConfirm
+                  recipient={selectedRecipient}
+                  amountPaise={amountPaise}
+                  purpose={purpose}
+                  senderAccountNumber={accountNumber}
+                  senderBalancePaise={availableBalance}
+                  onBack={() => goToStep(1, 'backward')}
+                  onSuccess={handleSuccess}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </GlassCard>
       </div>
-    </div>
+    </PageWrapper>
   );
 }

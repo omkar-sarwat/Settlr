@@ -13,7 +13,7 @@ import {
 import { Card } from '../ui/Card';
 import type { SignalBreakdown, TransactionPerMinute } from '../../types';
 
-// Friendly names for fraud rules
+// Friendly names for fraud rules (supports both DB lowercase and uppercase formats)
 const RULE_SHORT_NAMES: Record<string, string> = {
   VELOCITY_CHECK: 'Velocity',
   AMOUNT_ANOMALY: 'Amount',
@@ -21,6 +21,12 @@ const RULE_SHORT_NAMES: Record<string, string> = {
   NEW_ACCOUNT: 'New Acct',
   ROUND_AMOUNT: 'Round',
   RECIPIENT_RISK: 'Recipient',
+  velocity_check: 'Velocity',
+  amount_anomaly: 'Amount',
+  unusual_hour: 'Hour',
+  new_account: 'New Acct',
+  round_amount: 'Round',
+  recipient_risk: 'Recipient',
 };
 
 interface FraudSignalChartProps {
@@ -49,7 +55,7 @@ export function FraudSignalChart({ signalBreakdown, transactionsPerMinute }: Fra
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Transactions per minute chart */}
       <Card className="space-y-3">
-        <h4 className="text-sm font-semibold text-text-primary">Transactions Per Minute</h4>
+        <h4 className="text-sm font-semibold text-text-primary">Transaction Throughput (24h)</h4>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={lineData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#2a2a3a" />

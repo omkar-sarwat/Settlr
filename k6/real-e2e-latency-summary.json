@@ -1,0 +1,270 @@
+{
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {
+            "setup": {
+                "id": "5c0f8025f7e0b6654089e5b00e950f1a",
+                "groups": {},
+                "checks": {
+                        "auth login status is 200": {
+                            "name": "auth login status is 200",
+                            "path": "::setup::auth login status is 200",
+                            "id": "83e50c28eecbcc735b217f4caf98d173",
+                            "passes": 1,
+                            "fails": 0
+                        },
+                        "auth login has access token": {
+                            "passes": 1,
+                            "fails": 0,
+                            "name": "auth login has access token",
+                            "path": "::setup::auth login has access token",
+                            "id": "9bd5b6f602eaf3f2f37fecf604ec68eb"
+                        }
+                    },
+                "name": "setup",
+                "path": "::setup"
+            }
+        },
+        "checks": {
+            "auth login status is 200": {
+                "name": "auth login status is 200",
+                "path": "::auth login status is 200",
+                "id": "3ac756ab87dad2f6637e53c6ad5bb793",
+                "passes": 111,
+                "fails": 160
+            },
+            "auth login has access token": {
+                "id": "b46ff4edc04878dd03d893773eff1c4e",
+                "passes": 111,
+                "fails": 160,
+                "name": "auth login has access token",
+                "path": "::auth login has access token"
+            },
+            "accounts status is 200": {
+                "name": "accounts status is 200",
+                "path": "::accounts status is 200",
+                "id": "f65288f91cd49cf0f2633ab65cd30fba",
+                "passes": 158,
+                "fails": 1342
+            },
+            "accounts payload present": {
+                "name": "accounts payload present",
+                "path": "::accounts payload present",
+                "id": "9718f6062dfb9b1093474247cb610d6b",
+                "passes": 158,
+                "fails": 1342
+            },
+            "payment status is expected": {
+                "path": "::payment status is expected",
+                "id": "aa23d884a7f3b084a02f1569debc3df7",
+                "passes": 1081,
+                "fails": 0,
+                "name": "payment status is expected"
+            },
+            "payment has traceId": {
+                "name": "payment has traceId",
+                "path": "::payment has traceId",
+                "id": "e545cd3a16c30bd01611e9afd5860a5a",
+                "passes": 1081,
+                "fails": 0
+            },
+            "payment has no 5xx": {
+                "name": "payment has no 5xx",
+                "path": "::payment has no 5xx",
+                "id": "5a8de3ff66c72a2168a096dd38c17a19",
+                "passes": 1081,
+                "fails": 0
+            }
+        }
+    },
+    "metrics": {
+        "http_req_blocked": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.026845811426568528,
+            "min": 0,
+            "med": 0,
+            "max": 4.2956
+        },
+        "iteration_duration": {
+            "avg": 101.54109386395537,
+            "min": 24.9935,
+            "med": 59.0874,
+            "max": 1277.7918,
+            "p(90)": 126.85178000000022,
+            "p(95)": 324.0097149999996
+        },
+        "http_reqs": {
+            "count": 2853,
+            "rate": 40.251033208257866
+        },
+        "http_req_tls_handshaking": {
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0
+        },
+        "http_req_receiving": {
+            "avg": 0.6119798808271993,
+            "min": 0,
+            "med": 0,
+            "max": 9.4821,
+            "p(90)": 1.936560000000001,
+            "p(95)": 2.9983800000000005
+        },
+        "payment_4xx_total": {
+            "count": 1081,
+            "rate": 15.251092498467141
+        },
+        "http_req_waiting": {
+            "med": 58.0696,
+            "max": 1277.1813,
+            "p(90)": 131.14082000000144,
+            "p(95)": 327.6918400000007,
+            "avg": 100.42624381352967,
+            "min": 20.1999
+        },
+        "vus_max": {
+            "value": 120,
+            "min": 120,
+            "max": 120
+        },
+        "e2e_success_rate": {
+            "passes": 1351,
+            "fails": 1502,
+            "thresholds": {
+                "rate>0.95": true
+            },
+            "value": 0.4735366281107606
+        },
+        "payment_create_latency_ms": {
+            "p(95)": 89,
+            "avg": 60.52266419981498,
+            "min": 25,
+            "med": 57,
+            "max": 164,
+            "p(90)": 78,
+            "thresholds": {
+                "p(95)<450": false,
+                "p(99)<900": false
+            }
+        },
+        "checks": {
+            "passes": 3783,
+            "fails": 3004,
+            "value": 0.5573891262708118
+        },
+        "data_sent": {
+            "count": 1213070,
+            "rate": 17114.378147192907
+        },
+        "iterations": {
+            "count": 2852,
+            "rate": 40.23692488957288
+        },
+        "http_req_duration": {
+            "avg": 101.04879568874894,
+            "min": 22.1741,
+            "med": 58.4224,
+            "max": 1277.1813,
+            "p(90)": 131.9613600000011,
+            "p(95)": 328.3639600000009,
+            "thresholds": {
+                "p(95)<500": false,
+                "p(99)<1000": false
+            }
+        },
+        "http_req_failed": {
+            "passes": 2583,
+            "fails": 270,
+            "thresholds": {
+                "rate<0.05": true
+            },
+            "value": 0.9053627760252366
+        },
+        "http_req_duration{expected_response:true}": {
+            "med": 384.27075,
+            "max": 1277.1813,
+            "p(90)": 765.07927,
+            "p(95)": 1020.1213349999999,
+            "avg": 476.0523237037034,
+            "min": 177.7948
+        },
+        "http_req_sending": {
+            "p(95)": 0,
+            "avg": 0.010571994391868206,
+            "min": 0,
+            "med": 0,
+            "max": 2.0277,
+            "p(90)": 0
+        },
+        "e2e_latency_ms": {
+            "p(95)": 328.6000000000008,
+            "avg": 101.56572029442692,
+            "min": 25,
+            "med": 59,
+            "max": 1278,
+            "p(90)": 132.60000000000127
+        },
+        "data_received": {
+            "count": 1577453,
+            "rate": 22255.209634583243
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 17
+        },
+        "http_req_connecting": {
+            "avg": 0.022162495618647034,
+            "min": 0,
+            "med": 0,
+            "max": 2.4139,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "account_list_latency_ms": {
+            "min": 41,
+            "med": 61,
+            "max": 554,
+            "p(90)": 185,
+            "p(95)": 206,
+            "avg": 84.16266666666667,
+            "thresholds": {
+                "p(95)<250": false,
+                "p(99)<500": false
+            }
+        },
+        "auth_login_latency_ms": {
+            "avg": 360.65441176470586,
+            "min": 46,
+            "med": 73,
+            "max": 1278,
+            "p(90)": 763.7,
+            "p(95)": 1019.6999999999999,
+            "thresholds": {
+                "p(95)<350": true,
+                "p(99)<700": true
+            }
+        },
+        "e2e_error_rate": {
+            "passes": 1502,
+            "fails": 1351,
+            "thresholds": {
+                "rate<0.05": true
+            },
+            "value": 0.5264633718892394
+        }
+    },
+    "setup_data": {
+        "toAccountId": "1ebf3611-58a7-46ec-bac9-c1185ab31f4d",
+        "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyODQzY2JhZC05NmZiLTRjOWUtOWQyZi1lNWJmNDY0OTIyMjUiLCJlbWFpbCI6InRlc3RAc2V0dGxyLmRldiIsImlhdCI6MTc3MTc1MjkxNiwiZXhwIjoxNzcxNzUzODE2fQ.1zb3b00rMugJel_uTKB10kI8R3G1C8IBnvt5sFQF-oo",
+        "email": "test@settlr.dev",
+        "fromAccountId": "103547ee-f866-49c9-a0ef-d10a5d476383",
+        "password": "password123"
+    }
+}

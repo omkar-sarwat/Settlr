@@ -4,6 +4,7 @@
     { "path": "./services/api-gateway" },
     { "path": "./services/account-service" },
     { "path": "./services/payment-service" },
+    { "path": "./services/admin-service" },
     { "path": "./services/fraud-service" },
     { "path": "./services/webhook-service" },
     { "path": "./services/notification-service" }

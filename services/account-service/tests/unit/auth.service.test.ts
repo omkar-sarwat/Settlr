@@ -70,6 +70,7 @@ vi.mock('../../src/repositories/auth.repository', () => ({
     findByEmail: vi.fn(),
     findById: vi.fn(),
     createUser: vi.fn(),
+    getOrCreatePrimaryAccount: vi.fn(),
   },
 }));
 
@@ -100,6 +101,7 @@ describe('AuthService', () => {
       (authRepository.findByEmail as Mock).mockResolvedValue(null);
       (bcrypt.hash as Mock).mockResolvedValue('$2b$12$newhash');
       (authRepository.createUser as Mock).mockResolvedValue(mockUserRow);
+      (authRepository.getOrCreatePrimaryAccount as Mock).mockResolvedValue({ id: 'acc-001', balance: 0, currency: 'INR' });
       (redis.setex as Mock).mockResolvedValue('OK');
 
       const result = await authService.register('test@settlr.com', 'StrongP@ss1');
@@ -134,6 +136,7 @@ describe('AuthService', () => {
     it('returns tokens when credentials are valid', async () => {
       (authRepository.findByEmail as Mock).mockResolvedValue(mockUserRow);
       (bcrypt.compare as Mock).mockResolvedValue(true);
+      (authRepository.getOrCreatePrimaryAccount as Mock).mockResolvedValue({ id: 'acc-001', balance: 500000, currency: 'INR' });
       (redis.setex as Mock).mockResolvedValue('OK');
 
       const result = await authService.login('test@settlr.com', 'StrongP@ss1');

@@ -57,11 +57,13 @@ export const paymentRepository = {
       .update({ status, failure_reason: failureReason, updated_at: new Date() });
   },
 
-  // Lock sender account row inside DB transaction (SELECT ... FOR UPDATE)
+  // Lock account row inside DB transaction (SELECT ... FOR UPDATE NOWAIT)
+  // Does NOT filter by status — the caller checks status and throws ACCOUNT_FROZEN if needed.
   async lockAccount(trx: Knex.Transaction, accountId: string) {
     return trx('accounts')
-      .where({ id: accountId, status: 'active' })
+      .where({ id: accountId })
       .forUpdate()
+      .noWait()
       .first();
   },
 
@@ -95,6 +97,26 @@ export const paymentRepository = {
         version: currentVersion + 1,
         updated_at: new Date(),
       });
+  },
+
+  // Insert one row per fired fraud rule for audit trail
+  async insertFraudSignals(
+    trx: Knex.Transaction,
+    transactionId: string,
+    signals: Array<{ ruleName: string; scoreAdded: number; data: Record<string, unknown> }>
+  ): Promise<void> {
+    if (signals.length === 0) {
+      return;
+    }
+
+    await trx('fraud_signals').insert(
+      signals.map((signal) => ({
+        transaction_id: transactionId,
+        rule_name: signal.ruleName,
+        score_added: signal.scoreAdded,
+        signal_data: signal.data,
+      }))
+    );
   },
 
   // Get transaction with fraud signals joined

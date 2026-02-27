@@ -1,10 +1,10 @@
 // RegisterPage — sign up form with name, email, password + Zod validation
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Hexagon, Eye, EyeOff, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, UserPlus } from 'lucide-react';
 import { registerUser } from '../api/auth.api';
 import { useAuthStore } from '../store/authStore';
 import { Input } from '../components/ui/Input';
@@ -28,6 +28,13 @@ export function RegisterPage() {
   const [apiError, setApiError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect if already logged in (using useEffect to avoid render-time setState)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   const {
     register,
     handleSubmit,
@@ -36,18 +43,12 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
-  // Redirect if already logged in
-  if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
-    return null;
-  }
-
   async function onSubmit(data: RegisterFormValues) {
     setApiError('');
     setIsLoading(true);
     try {
       const response = await registerUser(data);
-      setAuth(response.data.accessToken, response.data.user);
+      setAuth(response.data.user, response.data.account, response.data.accessToken);
       navigate('/dashboard');
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -69,9 +70,12 @@ export function RegisterPage() {
       <div className="bg-bg-secondary rounded-lg shadow-lg p-8 max-w-md w-full border border-bg-tertiary space-y-6">
         {/* Logo */}
         <div className="text-center space-y-1">
-          <div className="flex items-center justify-center gap-2">
-            <Hexagon className="w-8 h-8 text-brand" />
-            <span className="text-xl font-bold text-text-primary">SETTLR</span>
+          <div className="flex items-center justify-center">
+            <img
+              src="/settlr_logo.svg"
+              alt="Settlr"
+              className="h-10 w-auto"
+            />
           </div>
           <p className="text-sm text-text-secondary">Create your account</p>
         </div>

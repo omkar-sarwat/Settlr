@@ -83,6 +83,34 @@ export function TransactionDetailPage() {
 
   const fraudAction = getFraudActionLabel(fraudScore);
 
+  const ruleLabels: Record<string, string> = {
+    VELOCITY_CHECK: 'Transaction Frequency',
+    AMOUNT_ANOMALY: 'Unusual Amount',
+    UNUSUAL_HOUR: 'Time of Transfer',
+    NEW_ACCOUNT: 'Account Age',
+    ROUND_AMOUNT: 'Round Number Detection',
+    RECIPIENT_RISK: 'Recipient Activity',
+  };
+
+  const allRules = [
+    'VELOCITY_CHECK',
+    'AMOUNT_ANOMALY',
+    'UNUSUAL_HOUR',
+    'NEW_ACCOUNT',
+    'ROUND_AMOUNT',
+    'RECIPIENT_RISK',
+  ];
+
+  const displayedSignals = allRules.map((ruleName) => {
+    const fired = signals.find((signal) => signal.ruleName === ruleName);
+    return {
+      ruleName,
+      scoreAdded: fired?.scoreAdded ?? 0,
+      description: ruleLabels[ruleName],
+      data: fired?.data ?? {},
+    };
+  });
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Back button */}
@@ -183,32 +211,26 @@ export function TransactionDetailPage() {
         </div>
 
         {/* Signal rows */}
-        {signals.length > 0 && (
-          <div className="pt-2">
-            <p className="text-xs text-text-muted mb-2">
-              Signals Checked ({signals.length} rules):
-            </p>
-            <div className="divide-y divide-bg-border">
-              {signals.map((signal) => (
-                <FraudSignalRow key={signal.ruleName} signal={signal} />
-              ))}
-            </div>
+        <div className="pt-2">
+          <p className="text-xs text-text-muted mb-2">Signals Checked (6 rules):</p>
+          <div className="divide-y divide-bg-border">
+            {displayedSignals.map((signal) => (
+              <FraudSignalRow key={signal.ruleName} signal={signal} />
+            ))}
           </div>
-        )}
+        </div>
 
         {/* Summary */}
-        {signals.length > 0 && (
-          <div className="flex items-center gap-2 pt-2 border-t border-bg-border">
-            {fraudScore < 60 ? (
-              <CheckCircle2 className="w-4 h-4 text-success-DEFAULT" />
-            ) : (
-              <AlertTriangle className="w-4 h-4 text-danger-DEFAULT" />
-            )}
-            <span className="text-xs text-text-secondary">
-              Total risk: {fraudScore} points from {signals.filter((s) => s.scoreAdded > 0).length} fired rule(s)
-            </span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 pt-2 border-t border-bg-border">
+          {fraudScore < 60 ? (
+            <CheckCircle2 className="w-4 h-4 text-success-DEFAULT" />
+          ) : (
+            <AlertTriangle className="w-4 h-4 text-danger-DEFAULT" />
+          )}
+          <span className="text-xs text-text-secondary">
+            Total risk: {fraudScore} points from {displayedSignals.filter((s) => s.scoreAdded > 0).length} fired rule(s)
+          </span>
+        </div>
       </Card>
 
       {/* Ledger trail */}

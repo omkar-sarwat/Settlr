@@ -1,4 +1,4 @@
-// Fraud service — Express bootstrap, Redis + DB + Kafka startup, routes, port 3003
+// Fraud service — Express bootstrap, Redis + DB + Kafka startup, routes, port 3004
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from '@settlr/config';
 import { logger } from '@settlr/logger';
@@ -61,7 +61,7 @@ async function start(): Promise<void> {
     process.exit(1);
   }
 
-  const port = parseInt(process.env.FRAUD_SERVICE_PORT || '3003', 10);
+  const port = parseInt(process.env.FRAUD_SERVICE_PORT || '3004', 10);
   app.listen(port, () => {
     logger.info('server_started', { service: 'fraud-service', port });
   });

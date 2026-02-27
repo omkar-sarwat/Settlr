@@ -1,5 +1,5 @@
 # docker-compose.yml — Run the entire Settlr backend locally with one command: docker-compose up
-# Starts all 6 microservices with their correct ports and environment variables.
+# Starts all 7 microservices with their correct ports and environment variables.
 
 version: '3.8'
 
@@ -15,14 +15,17 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - ACCOUNT_SERVICE_URL=http://account-service:3001
       - PAYMENT_SERVICE_URL=http://payment-service:3002
-      - FRAUD_SERVICE_URL=http://fraud-service:3003
-      - WEBHOOK_SERVICE_URL=http://webhook-service:3004
+      - ADMIN_SERVICE_URL=http://admin-service:3003
+      - FRAUD_SERVICE_URL=http://fraud-service:3004
+      - WEBHOOK_SERVICE_URL=http://webhook-service:3005
       - UPSTASH_REDIS_URL=${UPSTASH_REDIS_URL}
       - LOG_LEVEL=info
     depends_on:
       account-service:
         condition: service_healthy
       payment-service:
+        condition: service_healthy
+      admin-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -64,7 +67,7 @@ services:
       - KAFKA_BROKER=${KAFKA_BROKER}
       - KAFKA_USERNAME=${KAFKA_USERNAME}
       - KAFKA_PASSWORD=${KAFKA_PASSWORD}
-      - FRAUD_SERVICE_URL=http://fraud-service:3003
+      - FRAUD_SERVICE_URL=http://fraud-service:3004
       - LOG_LEVEL=info
     depends_on:
       fraud-service:
@@ -76,19 +79,19 @@ services:
       retries: 3
     restart: unless-stopped
 
-  fraud-service:
-    build: ./services/fraud-service
+  admin-service:
+    build: ./services/admin-service
     ports:
       - "3003:3003"
     environment:
       - NODE_ENV=production
       - PORT=3003
-      - DATABASE_URL=${DATABASE_URL}
-      - UPSTASH_REDIS_URL=${UPSTASH_REDIS_URL}
-      - KAFKA_BROKER=${KAFKA_BROKER}
-      - KAFKA_USERNAME=${KAFKA_USERNAME}
-      - KAFKA_PASSWORD=${KAFKA_PASSWORD}
+      - PAYMENT_SERVICE_URL=http://payment-service:3002
+      - FRAUD_SERVICE_URL=http://fraud-service:3004
       - LOG_LEVEL=info
+    depends_on:
+      payment-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
       interval: 30s
@@ -96,8 +99,8 @@ services:
       retries: 3
     restart: unless-stopped
 
-  webhook-service:
-    build: ./services/webhook-service
+  fraud-service:
+    build: ./services/fraud-service
     ports:
       - "3004:3004"
     environment:
@@ -109,15 +112,35 @@ services:
       - KAFKA_USERNAME=${KAFKA_USERNAME}
       - KAFKA_PASSWORD=${KAFKA_PASSWORD}
       - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
-  notification-service:
-    build: ./services/notification-service
+  webhook-service:
+    build: ./services/webhook-service
     ports:
       - "3005:3005"
     environment:
       - NODE_ENV=production
       - PORT=3005
+      - DATABASE_URL=${DATABASE_URL}
+      - UPSTASH_REDIS_URL=${UPSTASH_REDIS_URL}
+      - KAFKA_BROKER=${KAFKA_BROKER}
+      - KAFKA_USERNAME=${KAFKA_USERNAME}
+      - KAFKA_PASSWORD=${KAFKA_PASSWORD}
+      - LOG_LEVEL=info
+    restart: unless-stopped
+
+  notification-service:
+    build: ./services/notification-service
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
       - RESEND_API_KEY=${RESEND_API_KEY}
       - EMAIL_FROM=${EMAIL_FROM}
       - KAFKA_BROKER=${KAFKA_BROKER}

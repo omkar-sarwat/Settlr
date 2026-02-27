@@ -1,5 +1,5 @@
-// MetricsBar — 4 metric cards for admin: volume, success rate, fraud block rate, latency
-import { DollarSign, CheckCircle2, Shield, Clock } from 'lucide-react';
+// MetricsBar — 8 metric cards for admin: volume, success, blocked, latency, p95, p99, total txns, active users
+import { DollarSign, CheckCircle2, Shield, Clock, Zap, Activity, Users, TrendingUp } from 'lucide-react';
 import { formatCompact } from '../../lib/formatCurrency';
 import { Card } from '../ui/Card';
 import { cn } from '../../lib/cn';
@@ -18,7 +18,7 @@ interface MetricCardConfig {
   color: string;
 }
 
-/** 4-card metrics grid showing key admin stats */
+/** 8-card metrics grid showing key admin + performance stats */
 export function MetricsBar({ metrics, isLoading }: MetricsBarProps) {
   const cards: MetricCardConfig[] = [
     {
@@ -43,10 +43,38 @@ export function MetricsBar({ metrics, isLoading }: MetricsBarProps) {
       color: 'text-danger-text bg-danger-bg',
     },
     {
-      label: 'Latency',
+      label: 'Avg Latency',
       value: metrics ? `${metrics.avgLatencyMs}ms` : '—',
-      subtitle: 'avg P50',
+      subtitle: 'avg',
       icon: Clock,
+      color: 'text-warning-text bg-warning-bg',
+    },
+    {
+      label: 'P95 Latency',
+      value: metrics?.p95LatencyMs !== undefined ? `${metrics.p95LatencyMs}ms` : '—',
+      subtitle: '95th pctl',
+      icon: Zap,
+      color: 'text-brand-light bg-brand-muted',
+    },
+    {
+      label: 'P99 Latency',
+      value: metrics?.p99LatencyMs !== undefined ? `${metrics.p99LatencyMs}ms` : '—',
+      subtitle: '99th pctl',
+      icon: Activity,
+      color: 'text-danger-text bg-danger-bg',
+    },
+    {
+      label: 'Total Txns',
+      value: metrics?.totalTransactions !== undefined ? metrics.totalTransactions.toLocaleString() : '—',
+      subtitle: 'all time',
+      icon: TrendingUp,
+      color: 'text-success-text bg-success-bg',
+    },
+    {
+      label: 'Active Users',
+      value: metrics?.activeUsersToday !== undefined ? String(metrics.activeUsersToday) : '—',
+      subtitle: 'today',
+      icon: Users,
       color: 'text-warning-text bg-warning-bg',
     },
   ];
@@ -64,7 +92,7 @@ export function MetricsBar({ metrics, isLoading }: MetricsBarProps) {
               </div>
               <div>
                 <p className="text-lg font-bold text-text-primary font-mono">{card.value}</p>
-                <p className="text-xs text-text-muted">{card.subtitle}</p>
+                <p className="text-xs text-text-muted">{card.label} <span className="text-text-muted/60">({card.subtitle})</span></p>
               </div>
             </>
           )}

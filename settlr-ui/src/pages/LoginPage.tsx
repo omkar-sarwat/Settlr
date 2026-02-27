@@ -1,10 +1,10 @@
 // LoginPage — Full dark screen with centered card, Zod-validated form, password toggle
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Hexagon, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { loginUser } from '../api/auth.api';
 import { Input } from '../components/ui/Input';
@@ -28,10 +28,12 @@ export function LoginPage() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // If already logged in, redirect to dashboard
-  if (isAuthenticated) {
-    navigate('/dashboard', { replace: true });
-  }
+  // Redirect to dashboard if already logged in (using useEffect to avoid render-time setState)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Form state managed by React Hook Form with Zod validation
   const {
@@ -55,7 +57,7 @@ export function LoginPage() {
 
     try {
       const response = await loginUser(data);
-      setAuth(response.data.accessToken, response.data.user);
+      setAuth(response.data.user, response.data.account, response.data.accessToken);
       navigate('/dashboard', { replace: true });
     } catch (error: unknown) {
       // Show user-friendly error from the API response
@@ -94,9 +96,12 @@ export function LoginPage() {
       {/* Login card */}
       <div className="bg-bg-secondary rounded-lg shadow-lg p-8 max-w-md w-full border border-bg-tertiary relative">
         {/* Logo section */}
-        <div className="flex items-center gap-2 mb-1">
-          <Hexagon className="w-8 h-8 text-brand" />
-          <span className="text-xl font-bold text-text-primary">SETTLR</span>
+        <div className="mb-1">
+          <img
+            src="/settlr_logo.svg"
+            alt="Settlr"
+            className="h-9 w-auto"
+          />
         </div>
         <p className="text-sm text-text-secondary mb-8">
           Secure Payments Platform

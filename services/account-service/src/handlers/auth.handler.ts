@@ -50,3 +50,34 @@ export async function logoutHandler(req: Request, res: Response, next: NextFunct
     next(err);
   }
 }
+
+// GET /profile — Get current user profile
+export async function getProfileHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const userId = req.headers['x-user-id'] as string || req.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: 'UNAUTHORIZED', traceId: req.traceId });
+      return;
+    }
+    const result = await authService.getProfile(userId);
+    respond(res, result.statusCode ?? 200, { success: true, data: result.data }, req.traceId!);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// PATCH /profile — Update current user profile
+export async function updateProfileHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const userId = req.headers['x-user-id'] as string || req.userId;
+    if (!userId) {
+      res.status(401).json({ success: false, error: 'UNAUTHORIZED', traceId: req.traceId });
+      return;
+    }
+    const { name, phone } = req.body;
+    const result = await authService.updateProfile(userId, { name, phone });
+    respond(res, result.statusCode ?? 200, { success: true, data: result.data }, req.traceId!);
+  } catch (err) {
+    next(err);
+  }
+}

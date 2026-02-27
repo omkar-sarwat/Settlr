@@ -13,10 +13,12 @@ import type { FlaggedTransaction } from '../../types';
 interface FlaggedTableProps {
   transactions: FlaggedTransaction[];
   isLoading: boolean;
+  onApprove?: (id: string) => void;
+  onBlock?: (id: string) => void;
 }
 
 /** Cards showing flagged transactions sorted by score descending */
-export function FlaggedTable({ transactions, isLoading }: FlaggedTableProps) {
+export function FlaggedTable({ transactions, isLoading, onApprove, onBlock }: FlaggedTableProps) {
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -118,13 +120,13 @@ export function FlaggedTable({ transactions, isLoading }: FlaggedTableProps) {
               <div className="flex gap-2">
                 <Button
                   label="Mark Safe"
-                  onClick={() => { /* TODO: API call */ }}
+                  onClick={() => onApprove?.(txn.id)}
                   variant="secondary"
                   icon={ShieldCheck}
                 />
                 <Button
                   label="Confirm Block"
-                  onClick={() => { /* TODO: API call */ }}
+                  onClick={() => onBlock?.(txn.id)}
                   variant="danger"
                   icon={ShieldX}
                 />

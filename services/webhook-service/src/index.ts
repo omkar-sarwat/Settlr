@@ -1,4 +1,4 @@
-// Webhook service — Express bootstrap, Kafka consumer for payment events, retry worker, port 3004
+// Webhook service — Express bootstrap, Kafka consumer for payment events, retry worker, port 3005
 import express, { Request, Response, NextFunction } from 'express';
 import { config } from '@settlr/config';
 import { logger } from '@settlr/logger';
@@ -86,7 +86,7 @@ async function start(): Promise<void> {
   // Start the retry worker that polls for failed deliveries
   startRetryWorker();
 
-  const port = parseInt(process.env.WEBHOOK_SERVICE_PORT || '3004', 10);
+  const port = parseInt(process.env.WEBHOOK_SERVICE_PORT || '3005', 10);
   app.listen(port, () => {
     logger.info('server_started', { service: 'webhook-service', port });
   });

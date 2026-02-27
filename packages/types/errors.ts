@@ -19,12 +19,14 @@ export class AppError extends Error {
   public readonly code: string;          // SCREAMING_SNAKE_CASE error code (e.g. 'INSUFFICIENT_BALANCE')
   public readonly statusCode: number;    // HTTP status code to return (e.g. 400, 404, 500)
   public readonly isOperational: boolean; // true = expected error, false = programmer bug
+  public readonly data?: Record<string, unknown>; // Optional structured data (e.g. fraudScore)
 
-  constructor(code: string, message: string, statusCode: number = 500) {
+  constructor(code: string, message: string, statusCode: number = 500, data?: Record<string, unknown>) {
     super(message);
     this.code = code;
     this.statusCode = statusCode;
     this.isOperational = true; // All AppErrors are operational by definition
+    this.data = data;
     // Capture stack trace but exclude the constructor from it (cleaner traces)
     Error.captureStackTrace(this, this.constructor);
     // Set the prototype explicitly for proper instanceof checks after transpilation
@@ -63,12 +65,13 @@ export class AppError extends Error {
     );
   }
 
-  /** Creates a 403 Fraud Blocked error */
+  /** Creates a 403 Fraud Blocked error with fraud score in response body */
   static fraudBlocked(score: number): AppError {
     return new AppError(
       ErrorCodes.FRAUD_BLOCKED,
       `Transaction declined by risk engine (score: ${score})`,
-      403
+      403,
+      { fraudScore: score }
     );
   }
 

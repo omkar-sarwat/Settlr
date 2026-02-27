@@ -1,5 +1,6 @@
 // Ledger repository — inserts debit/credit pairs inside a DB transaction.
 import type { Knex } from 'knex';
+import { db } from '@settlr/database';
 import type { ILedgerEntryRow } from '@settlr/types';
 
 export const ledgerRepository = {
@@ -24,5 +25,11 @@ export const ledgerRepository = {
       balance_after: e.balanceAfter,
     }));
     return trx('ledger_entries').insert(rows).returning('*');
+  },
+
+  async findByTransactionId(transactionId: string): Promise<ILedgerEntryRow[]> {
+    return db('ledger_entries')
+      .where({ transaction_id: transactionId })
+      .orderBy('created_at', 'asc');
   },
 };

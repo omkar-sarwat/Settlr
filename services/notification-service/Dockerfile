@@ -18,8 +18,8 @@ COPY package.json ./
 
 USER settlr
 
-EXPOSE 3005
+EXPOSE 3006
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3005/health || exit 1
+  CMD curl -f http://localhost:3006/health || exit 1
 
 CMD ["node", "dist/index.js"]

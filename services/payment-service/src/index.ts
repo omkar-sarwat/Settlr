@@ -44,6 +44,7 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
     logger.warn('operational_error', { traceId, code: error.code, message: error.message });
     res.status(error.statusCode).json({
       success: false, error: error.code, message: error.message, traceId,
+      ...(error.data ? { data: error.data } : {}),
     });
     return;
   }

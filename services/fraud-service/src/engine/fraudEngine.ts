@@ -9,7 +9,7 @@ import { checkRoundAmount } from './rules/roundAmountRule';
 import { checkRecipientRisk } from './rules/recipientRiskRule';
 
 // Convert numeric score to action using configurable thresholds
-function scoreToAction(score: number): 'approve' | 'review' | 'challenge' | 'decline' {
+export function scoreToAction(score: number): 'approve' | 'review' | 'challenge' | 'decline' {
   if (score < config.fraudApproveBelow) return 'approve';
   if (score < config.fraudReviewBelow) return 'review';
   if (score < config.fraudChallengeBelow) return 'challenge';
@@ -24,7 +24,7 @@ export async function runFraudEngine(input: IFraudInput): Promise<IFraudResult> 
     checkUnusualHour(),
     checkNewAccount(input.accountCreatedAt),
     checkRoundAmount(input.amount),
-    checkRecipientRisk(input.toAccountId),
+    checkRecipientRisk(input.toAccountId, input.fromAccountId),
   ]);
 
   // Filter out null signals (rule didn't fire)

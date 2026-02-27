@@ -6,6 +6,8 @@ import {
   listAccountsHandler,
   lookupAccountHandler,
   getWeeklyStatsHandler,
+  getAccountStatsHandler,
+  getAccountChartHandler,
   getAccountHandler,
   getTransactionsHandler,
   getLedgerHandler,
@@ -20,6 +22,8 @@ accountRouter.post('/', createAccountHandler);
 accountRouter.get('/', listAccountsHandler);
 accountRouter.get('/lookup', lookupAccountHandler);
 accountRouter.get('/stats/weekly', getWeeklyStatsHandler);
+accountRouter.get('/:accountId/stats', getAccountStatsHandler);
+accountRouter.get('/:accountId/chart', getAccountChartHandler);
 accountRouter.get('/:accountId', getAccountHandler);
 accountRouter.get('/:accountId/transactions', getTransactionsHandler);
 accountRouter.get('/:accountId/ledger', getLedgerHandler);

@@ -9,10 +9,25 @@
 // This ensures SQL stays in repositories and business logic stays in services.
 
 import knex, { type Knex } from 'knex';
+import pg from 'pg';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { config } from '@settlr/config';
 import { logger } from '@settlr/logger';
+
+// ── BIGINT → Number coercion ──────────────────────────────────────────────────
+// PostgreSQL returns BIGINT (OID 20) as string because JS Number can't represent
+// all 64-bit integers. For Settlr, all monetary values (paise) are safely within
+// Number.MAX_SAFE_INTEGER (9007199254740991 ≈ ₹90 lakh crore). Parsing globally
+// here prevents subtle string-concatenation bugs like `balance + amount` producing
+// "9900000100000" instead of 10000000.
+pg.types.setTypeParser(20, (val: string) => {
+  const n = Number(val);
+  if (!Number.isSafeInteger(n)) {
+    throw new Error(`BIGINT value ${val} exceeds Number.MAX_SAFE_INTEGER — cannot safely coerce`);
+  }
+  return n;
+});
 
 // Re-export Knex type so repositories can type their transaction parameters
 // Usage: async function createEntries(trx: KnexTransaction, params: ILedgerParams)
@@ -37,16 +52,25 @@ export const db: Knex = knex({
     ssl: { rejectUnauthorized: false }, // Supabase uses self-signed certs
   },
   pool: {
-    min: 2,   // Keep 2 connections warm at all times
-    max: 10,  // Never open more than 10 concurrent connections
-    // Destroy connections that have been idle for 30 seconds
-    idleTimeoutMillis: 30000,
+    min: 2,    // Keep 2 connections warm at all times (avoids cold-start on first req)
+    max: 20,   // Increased from 10: Supabase PgBouncer (port 6543) multiplexes real
+               // connections, so higher logical pool reduces queue wait under concurrency.
+               // 5 services × 20 = 100 logical; PgBouncer maps to ≤ its own pool limit.
+    idleTimeoutMillis: 30000,  // Return idle connections after 30s
+    // Fintech safety guards applied to every new connection:
+    //   statement_timeout           — kill any single SQL statement running > 8s.
+    //                                 Prevents runaway aggregations from blocking the pool.
+    //   idle_in_transaction_session — kill sessions stuck in BEGIN with no activity > 5s.
+    //                                 Prevents lock pile-ups after a crashed mid-transaction.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    afterCreate(conn: any, done: (err: Error | null, conn: any) => void) {
+      conn.query(
+        "SET statement_timeout = 8000; SET idle_in_transaction_session_timeout = 5000",
+        (err: Error | null) => done(err, conn)
+      );
+    },
   },
-  // Convert BIGINT columns from string to number.
-  // PostgreSQL returns BIGINT as string because JS number can't hold all 64-bit values.
-  // For Settlr, balances and amounts are safely within JS number range (max ₹1 crore = 10^9 paise).
-  // This avoids having to parse strings in every repository method.
-  acquireConnectionTimeout: 10000,  // 10 second timeout to acquire a connection from the pool
+  acquireConnectionTimeout: 8000,  // Fail fast (503) rather than queue indefinitely
 });
 
 /**

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Shield, BarChart3, Radio, RefreshCw } from 'lucide-react';
 import { useAdminMetrics, useFlaggedTransactions } from '../hooks/useAdminMetrics';
+import { useApproveFraud, useBlockFraud } from '../hooks/useFraud';
 import { MetricsBar } from '../components/admin/MetricsBar';
 import { FraudSignalChart } from '../components/admin/FraudSignalChart';
 import { FlaggedTable } from '../components/admin/FlaggedTable';
@@ -23,6 +24,8 @@ export function AdminPage() {
   // Data hooks
   const { data: metricsData, isLoading: metricsLoading, secondsAgo } = useAdminMetrics();
   const { data: flaggedData, isLoading: flaggedLoading } = useFlaggedTransactions();
+  const { mutate: approveFraud } = useApproveFraud();
+  const { mutate: blockFraud } = useBlockFraud();
 
   const metrics = metricsData?.data ?? undefined;
   const flaggedTxns = flaggedData?.data ?? [];
@@ -88,7 +91,12 @@ export function AdminPage() {
         )}
 
         {activeTab === 'fraud' && (
-          <FlaggedTable transactions={flaggedTxns} isLoading={flaggedLoading} />
+          <FlaggedTable
+            transactions={flaggedTxns}
+            isLoading={flaggedLoading}
+            onApprove={(id) => approveFraud(id)}
+            onBlock={(id) => blockFraud(id)}
+          />
         )}
 
         {activeTab === 'live' && <LiveFeed />}

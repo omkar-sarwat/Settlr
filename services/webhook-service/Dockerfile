@@ -16,6 +16,6 @@ COPY --from=builder /app/services/webhook-service/dist ./dist
 COPY --from=builder /app/services/webhook-service/package.json ./package.json
 
 USER settlr
-EXPOSE 3004
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3004/health || exit 1
+EXPOSE 3005
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:3005/health || exit 1
 CMD ["node", "dist/index.js"]

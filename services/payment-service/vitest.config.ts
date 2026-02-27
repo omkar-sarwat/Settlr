@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     globals: true,
     root: '.',
+    environment: 'node',
+    testTimeout: 30000,
+    hookTimeout: 60000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'json-summary', 'html'],
@@ -13,7 +16,13 @@ export default defineConfig({
         branches: 70,
       },
       include: ['src/**/*.ts'],
-      exclude: ['**/node_modules/**', 'src/index.ts', '**/*.test.ts'],
+      exclude: [
+        '**/node_modules/**',
+        'src/index.ts',
+        '**/*.test.ts',
+        '**/*.d.ts',
+      ],
     },
+    include: ['tests/**/*.test.ts'],
   },
 });

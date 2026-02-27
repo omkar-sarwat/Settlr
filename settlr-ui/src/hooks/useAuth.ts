@@ -6,14 +6,14 @@ import type { User } from '../types';
 
 interface UseAuthReturn {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
   logout: () => void;
 }
 
 /** Provides auth state and a logout function that clears state + navigates to /login */
 export function useAuth(): UseAuthReturn {
-  const { user, token, isAuthenticated, logout: clearAuth } = useAuthStore();
+  const { user, accessToken, isAuthenticated, clearAuth } = useAuthStore();
   const navigate = useNavigate();
 
   const logout = useCallback(() => {
@@ -21,5 +21,5 @@ export function useAuth(): UseAuthReturn {
     navigate('/login', { replace: true });
   }, [clearAuth, navigate]);
 
-  return { user, token, isAuthenticated, logout };
+  return { user, accessToken, isAuthenticated, logout };
 }

@@ -1,6 +1,6 @@
 // useTransactions — TanStack Query hooks for transaction data
 import { useQuery } from '@tanstack/react-query';
-import { getTransactions, getTransactionById, getRecentTransactions } from '../api/payment.api';
+import { getTransactions, getTransactionById, getRecentTransactions, getDashboardStats } from '../api/payment.api';
 import type { TransactionFilters } from '../types';
 
 /**
@@ -31,6 +31,16 @@ export function useRecentTransactions() {
   return useQuery({
     queryKey: ['recent-transactions'],
     queryFn: getRecentTransactions,
+    staleTime: 30_000,
+  });
+}
+
+/** Fetches today's dashboard stats (sent, received, success rate) for a specific account */
+export function useDashboardStats(accountId: string | undefined) {
+  return useQuery({
+    queryKey: ['dashboard-stats', accountId],
+    queryFn: () => getDashboardStats(accountId!),
+    enabled: !!accountId,
     staleTime: 30_000,
   });
 }

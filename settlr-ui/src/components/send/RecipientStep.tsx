@@ -37,8 +37,8 @@ export function RecipientStep({ onSelect, initialRecipient }: RecipientStepProps
 
     try {
       const result = await lookupAccount(searchQuery);
-      if (result.data) {
-        setRecipient(result.data);
+      if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+        setRecipient(result.data[0]);
         setError('');
       } else {
         setRecipient(null);

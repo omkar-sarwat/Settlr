@@ -1,40 +1,55 @@
-// AppLayout — wraps all protected pages, redirects to /login if not authenticated
-import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
-import { Sidebar } from './Sidebar';
-import { MobileNav } from './MobileNav';
-
-interface AppLayoutProps {
-  children: React.ReactNode;
-}
-
 /**
- * Layout wrapper for all pages that require login.
- * Shows the sidebar on desktop (md+) and bottom nav on mobile.
- * If the user is not logged in, they are redirected to /login.
+ * App Layout Component
+ * 
+ * Main layout wrapper for all authenticated pages.
+ * Contains:
+ * - Authentication guard (redirects to /login if not authenticated)
+ * - WebSocket connection for real-time updates
+ * - Animated background orbs
+ * - Sidebar navigation
+ * - Main content area with proper spacing
+ * 
+ * All child pages are rendered in the main content area.
  */
-export function AppLayout({ children }: AppLayoutProps) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // If not logged in, send to login page
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { TopNav } from './TopNav';
+import { AnimatedOrbs } from './AnimatedOrbs';
+import { useAuthStore } from '@/store/authStore';
+import { useWebSocket } from '@/hooks/useWebSocket';
+
+export function AppLayout() {
+  const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
+  // Initialize WebSocket connection for real-time updates
+  useWebSocket();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Don't render layout if not authenticated (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
-    <div className="flex h-screen bg-bg-primary overflow-hidden">
-      {/* Sidebar: hidden on mobile, shown on md+ screens */}
-      <div className="hidden md:flex">
-        <Sidebar />
-      </div>
-
-      {/* Main scrollable content area */}
-      <main className="flex-1 overflow-y-auto p-6 pb-24 md:pb-6">
-        {children}
+    <div className="relative min-h-screen bg-[#0f0f13] text-white overflow-hidden">
+      {/* Animated background orbs that drift slowly */}
+      <AnimatedOrbs />
+      
+      {/* Top navigation */}
+      <TopNav />
+      
+      {/* Main content area */}
+      <main className="relative min-h-[calc(100vh-88px)] p-8 max-w-7xl mx-auto">
+        <Outlet />
       </main>
-
-      {/* Mobile bottom nav: shown on mobile, hidden on md+ */}
-      <div className="md:hidden">
-        <MobileNav />
-      </div>
     </div>
   );
 }

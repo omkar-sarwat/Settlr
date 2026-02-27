@@ -51,6 +51,27 @@ export async function getWeeklyStatsHandler(req: Request, res: Response, next: N
   }
 }
 
+// GET /:accountId/stats — account dashboard stats (real DB values)
+export async function getAccountStatsHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const result = await accountService.getAccountStats(req.params.accountId, req.userId!);
+    respond(res, result.statusCode ?? 200, { success: true, data: result.data }, req.traceId!);
+  } catch (err) {
+    next(err);
+  }
+}
+
+// GET /:accountId/chart?days=7 — sent/received chart points
+export async function getAccountChartHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const days = Number.parseInt((req.query.days as string) || '7', 10);
+    const result = await accountService.getAccountChart(req.params.accountId, req.userId!, days);
+    respond(res, result.statusCode ?? 200, { success: true, data: result.data }, req.traceId!);
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /:accountId — Get single account with balance
 export async function getAccountHandler(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {

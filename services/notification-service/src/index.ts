@@ -57,7 +57,7 @@ app.use((error: Error, req: Request, res: Response, _next: NextFunction) => {
 
 // ── Start server + Kafka consumer ─────────────────────────────────────────
 async function start(): Promise<void> {
-  const port = parseInt(process.env.NOTIFICATION_SERVICE_PORT || '3005', 10);
+  const port = parseInt(process.env.NOTIFICATION_SERVICE_PORT || '3006', 10);
 
   // Subscribe to all 4 notification topics
   try {

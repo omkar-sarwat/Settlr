@@ -80,7 +80,7 @@ describe('FraudEngine', () => {
     expect(checkUnusualHour).toHaveBeenCalled();
     expect(checkNewAccount).toHaveBeenCalledWith(baseInput.accountCreatedAt);
     expect(checkRoundAmount).toHaveBeenCalledWith(baseInput.amount);
-    expect(checkRecipientRisk).toHaveBeenCalledWith(baseInput.toAccountId);
+    expect(checkRecipientRisk).toHaveBeenCalledWith(baseInput.toAccountId, baseInput.fromAccountId);
   });
 
   it('runs all rules in parallel via Promise.all (not sequential)', async () => {

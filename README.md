@@ -57,6 +57,62 @@ Settlr is a production-grade fintech backend that demonstrates mastery of distri
 
 ---
 
+## 🚀 Quick Start
+
+**TL;DR:** `.\start-all.ps1` - See [QUICKSTART.md](QUICKSTART.md) for cheat sheet.
+
+### One-Command Startup
+
+```powershell
+# 1. Clone and setup
+git clone <repo-url>
+cd settlr
+Copy-Item .env.example .env
+# Edit .env with your database/redis/kafka credentials
+
+# 2. Start EVERYTHING (all 6 services + UI)
+.\start-all.ps1
+```
+
+This will:
+- ✅ Check prerequisites (Node.js, npm)
+- 📦 Install all dependencies
+- 🗄️ Run database migrations
+- 🚀 Start all 6 microservices in separate windows
+- 🎨 Start the UI at http://localhost:5173
+
+**Services started:**
+- API Gateway: http://localhost:3000
+- Account Service: http://localhost:3001
+- Payment Service: http://localhost:3002
+- Fraud Service: http://localhost:3003
+- Webhook Service: http://localhost:3004
+- Notification Service: http://localhost:3005
+- Settlr UI: http://localhost:5173
+
+### Other Commands
+
+```powershell
+# Stop all services
+.\stop-all.ps1
+
+# Check service health status
+.\check-health.ps1
+
+# Fast restart (skip npm install)
+.\start-all.ps1 -SkipInstall
+
+# Daily development (fastest - no install, no migrations)
+.\dev-quick.ps1
+
+# Run only database migrations
+.\scripts\run-migrations.ps1
+```
+
+📖 **Full reference:** [QUICKSTART.md](QUICKSTART.md) | [scripts/README.md](scripts/README.md)
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Why |

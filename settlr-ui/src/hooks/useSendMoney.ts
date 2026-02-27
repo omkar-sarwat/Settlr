@@ -15,6 +15,8 @@ export function useSendMoney() {
     mutationFn: (params: SendMoneyParams) => sendMoney(params),
     onSuccess: () => {
       // Invalidate these cache keys so they refetch with fresh data
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      queryClient.invalidateQueries({ queryKey: ['chart'] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['recent-transactions'] });
       queryClient.invalidateQueries({ queryKey: ['account'] });

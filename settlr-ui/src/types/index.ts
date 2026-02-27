@@ -14,11 +14,20 @@ export interface User {
 }
 
 export interface AuthState {
-  token: string | null;
   user: User | null;
+  account: {
+    id: string;
+    balance: number;
+    currency: string;
+  } | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
-  setAuth: (token: string, user: User) => void;
-  logout: () => void;
+  setAuth: (
+    user: User,
+    account: { id: string; balance: number; currency: string },
+    accessToken: string
+  ) => void;
+  clearAuth: () => void;
 }
 
 export interface LoginFormData {
@@ -43,6 +52,11 @@ export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
     user: User;
+    account: {
+      id: string;
+      balance: number;
+      currency: string;
+    };
   };
   traceId: string;
 }
@@ -53,6 +67,11 @@ export interface RegisterResponse {
     accessToken: string;
     refreshToken: string;
     user: User;
+    account: {
+      id: string;
+      balance: number;
+      currency: string;
+    };
   };
   traceId: string;
 }
@@ -176,8 +195,14 @@ export interface AdminMetrics {
   successRate: number;                 // 0-100 percentage
   fraudBlockRate: number;              // 0-100 percentage
   avgLatencyMs: number;                // Milliseconds
+  p50LatencyMs: number;               // P50 latency
+  p95LatencyMs: number;               // P95 latency
+  p99LatencyMs: number;               // P99 latency
   transactionsPerMinute: TransactionPerMinute[];
   signalBreakdown: SignalBreakdown[];
+  totalTransactions: number;           // All-time completed count
+  totalVolume: number;                 // All-time completed volume (paise)
+  activeUsersToday: number;            // Unique users today
 }
 
 export interface TransactionPerMinute {

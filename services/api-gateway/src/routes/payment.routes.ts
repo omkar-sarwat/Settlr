@@ -60,4 +60,16 @@ paymentRouter.post('/', validate(initiatePaymentSchema), (req: Request, res: Res
   proxy(req, res, 'POST', '/payments');
 });
 
+// GET /payments — List transactions with pagination & filters (proxied to payment-service)
+paymentRouter.get('/', (req, res) => {
+  const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+  proxy(req, res, 'GET', `/payments${qs ? `?${qs}` : ''}`);
+});
+
+// GET /payments/dashboard-stats — Per-account today stats (user dashboard)
+paymentRouter.get('/dashboard-stats', (req, res) => {
+  const qs = new URLSearchParams(req.query as Record<string, string>).toString();
+  proxy(req, res, 'GET', `/payments/dashboard-stats${qs ? `?${qs}` : ''}`);
+});
+
 paymentRouter.get('/:transactionId', (req, res) => proxy(req, res, 'GET', `/payments/${req.params.transactionId}`));

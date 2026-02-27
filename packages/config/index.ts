@@ -93,9 +93,10 @@ export const config = {
   // ── Internal Service URLs (for api-gateway → service HTTP calls) ───────
   accountServiceUrl: optionalEnv('ACCOUNT_SERVICE_URL', 'http://localhost:3001'),
   paymentServiceUrl: optionalEnv('PAYMENT_SERVICE_URL', 'http://localhost:3002'),
-  fraudServiceUrl: optionalEnv('FRAUD_SERVICE_URL', 'http://localhost:3003'),
-  webhookServiceUrl: optionalEnv('WEBHOOK_SERVICE_URL', 'http://localhost:3004'),
-  notificationServiceUrl: optionalEnv('NOTIFICATION_SERVICE_URL', 'http://localhost:3005'),
+  adminServiceUrl: optionalEnv('ADMIN_SERVICE_URL', 'http://localhost:3003'),
+  fraudServiceUrl: optionalEnv('FRAUD_SERVICE_URL', 'http://localhost:3004'),
+  webhookServiceUrl: optionalEnv('WEBHOOK_SERVICE_URL', 'http://localhost:3005'),
+  notificationServiceUrl: optionalEnv('NOTIFICATION_SERVICE_URL', 'http://localhost:3006'),
 
   // ── Rate Limiting ──────────────────────────────────────────────────────
   // Sliding window rate limiter settings (used by api-gateway)

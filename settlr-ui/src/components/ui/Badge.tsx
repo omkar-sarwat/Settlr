@@ -1,34 +1,36 @@
-// Status badge — fintech dark mode status indicator
-import { cn } from '../../lib/cn';
+/**
+ * Badge Component
+ * 
+ * Small colored pill for showing status, labels, or tags.
+ * 
+ * Variants:
+ * - success: Green - for completed, successful states
+ * - danger:  Red - for failed, error states  
+ * - warning: Yellow - for pending, review states
+ * - neutral: Gray - for informational states
+ * - primary: Indigo - for highlighted states
+ */
 
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'muted';
+import { clsx } from 'clsx';
 
 interface BadgeProps {
-  label: string;
-  variant: BadgeVariant;
+  children: React.ReactNode;
+  variant?: 'success' | 'danger' | 'warning' | 'neutral' | 'primary';
   className?: string;
 }
 
-const variantClasses: Record<BadgeVariant, string> = {
-  success: 'bg-success-bg text-success-text border border-success-DEFAULT/50',
-  warning: 'bg-warning-bg text-warning-DEFAULT border border-warning-DEFAULT/50',
-  danger:  'bg-danger-bg text-danger text-danger-text border border-danger/50',
-  info:    'bg-info-bg text-info text-info-text border border-info/50',
-  muted:   'bg-bg-tertiary text-text-muted border border-bg-tertiary/50',
+const variantClasses = {
+  success: 'badge-success',
+  danger:  'badge-danger',
+  warning: 'badge-warning',
+  neutral: 'badge-neutral',
+  primary: 'badge-primary',
 };
 
-/** Small colored label for status display — dark mode fintech. Maps transaction status to color. */
-export function Badge({ label, variant, className }: BadgeProps) {
+export function Badge({ children, variant = 'neutral', className }: BadgeProps) {
   return (
-    <span
-      className={cn(
-        'text-xs font-semibold px-2 py-1 rounded-lg whitespace-nowrap inline-block',
-        'transition-all duration-200',
-        variantClasses[variant],
-        className,
-      )}
-    >
-      {label}
+    <span className={clsx(variantClasses[variant], className)}>
+      {children}
     </span>
   );
 }
@@ -37,16 +39,16 @@ export function Badge({ label, variant, className }: BadgeProps) {
 export function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'completed':
-      return <Badge label="Completed" variant="success" />;
+      return <Badge variant="success">Completed</Badge>;
     case 'pending':
-      return <Badge label="Pending" variant="warning" />;
+      return <Badge variant="warning">Pending</Badge>;
     case 'failed':
-      return <Badge label="Failed" variant="danger" />;
+      return <Badge variant="danger">Failed</Badge>;
     case 'reversed':
-      return <Badge label="Reversed" variant="info" />;
+      return <Badge variant="neutral">Reversed</Badge>;
     case 'fraud_blocked':
-      return <Badge label="Blocked" variant="danger" />;
+      return <Badge variant="danger">Blocked</Badge>;
     default:
-      return <Badge label={status} variant="muted" />;
+      return <Badge variant="neutral">{status}</Badge>;
   }
 }

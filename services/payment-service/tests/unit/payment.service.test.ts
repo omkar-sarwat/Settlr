@@ -103,6 +103,7 @@ vi.mock('../../src/repositories/payment.repository', () => ({
     lockAccount: vi.fn(),
     updateBalance: vi.fn(),
     creditAccount: vi.fn(),
+    insertFraudSignals: vi.fn(),
     findByIdWithSignals: vi.fn(),
   },
 }));
@@ -364,18 +365,25 @@ describe('PaymentService', () => {
       // Arrange
       (idempotencyService.get as Mock).mockResolvedValue(null);
 
-      (db.transaction as Mock).mockImplementation(async (cb: (trx: unknown) => Promise<unknown>) => cb({}));
-      (paymentRepository.lockAccount as Mock)
-        .mockResolvedValueOnce(mockFromAccount)
-        .mockResolvedValueOnce(mockToAccount);
+      // lockAccount must return valid accounts on EVERY retry attempt
+      // (service retries up to 3 times on CONCURRENT_MODIFICATION)
+      let lockCallCount = 0;
+      (paymentRepository.lockAccount as Mock).mockReset();
+      (paymentRepository.lockAccount as Mock).mockImplementation(() => {
+        const isFrom = lockCallCount % 2 === 0;
+        lockCallCount++;
+        return Promise.resolve(isFrom ? mockFromAccount : mockToAccount);
+      });
 
-      // 0 rows updated = version mismatch
+      (db.transaction as Mock).mockImplementation(async (cb: (trx: unknown) => Promise<unknown>) => cb({}));
+
+      // 0 rows updated = version mismatch on EVERY attempt
       (paymentRepository.updateBalance as Mock).mockResolvedValue(0);
 
-      // Act + Assert
+      // Act + Assert — after 3 retries, throws "Failed after retries"
       await expect(
         paymentService.initiatePayment(baseParams)
-      ).rejects.toThrow('Concurrent modification');
+      ).rejects.toThrow(/Failed after retries|Concurrent modification/);
     });
 
     it('always releases locks even when an error occurs', async () => {

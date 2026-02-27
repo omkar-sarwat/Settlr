@@ -29,7 +29,10 @@ function generateTokens(user: IUser): IAuthTokens {
 
 export const authService = {
   // Register a new user — hash password with bcrypt (salt >= 12)
-  async register(email: string, password: string, phone?: string, name?: string): Promise<IResult<IAuthTokens & { user: Omit<IUser, 'passwordHash'> }>> {
+  async register(email: string, password: string, phone?: string, name?: string): Promise<IResult<IAuthTokens & {
+    user: Omit<IUser, 'passwordHash'>;
+    account: { id: string; balance: number; currency: string };
+  }>> {
     const existing = await authRepository.findByEmail(email);
     if (existing) {
       throw new AppError(ErrorCodes.VALIDATION_ERROR, 'Email already registered', 400);
@@ -47,15 +50,19 @@ export const authService = {
     logger.info('user_registered', { userId: user.id, email });
 
     const { passwordHash: _pw, ...safeUser } = user;
+    const account = await authRepository.getOrCreatePrimaryAccount(user.id);
     return {
       success: true,
       statusCode: 201,
-      data: { ...tokens, user: safeUser },
+      data: { ...tokens, user: safeUser, account },
     };
   },
 
   // Login — verify email + password, return tokens
-  async login(email: string, password: string): Promise<IResult<IAuthTokens & { user: Omit<IUser, 'passwordHash'> }>> {
+  async login(email: string, password: string): Promise<IResult<IAuthTokens & {
+    user: Omit<IUser, 'passwordHash'>;
+    account: { id: string; balance: number; currency: string };
+  }>> {
     const row = await authRepository.findByEmail(email);
     if (!row) {
       throw new AppError(ErrorCodes.INVALID_CREDENTIALS, 'Invalid email or password', 401);
@@ -78,7 +85,8 @@ export const authService = {
     logger.info('user_logged_in', { userId: user.id });
 
     const { passwordHash: _pw, ...safeUser } = user;
-    return { success: true, statusCode: 200, data: { ...tokens, user: safeUser } };
+    const account = await authRepository.getOrCreatePrimaryAccount(user.id);
+    return { success: true, statusCode: 200, data: { ...tokens, user: safeUser, account } };
   },
 
   // Refresh — exchange refresh token for new access + refresh tokens
@@ -114,5 +122,28 @@ export const authService = {
     await redis.del(`refresh:${userId}`);
     logger.info('user_logged_out', { userId });
     return { success: true, statusCode: 200, message: 'Logged out successfully' };
+  },
+
+  // Get user profile by ID
+  async getProfile(userId: string): Promise<IResult<Omit<IUser, 'passwordHash'>>> {
+    const row = await authRepository.findById(userId);
+    if (!row) {
+      throw new AppError(ErrorCodes.UNAUTHORIZED, 'User not found', 404);
+    }
+    const user = toCamelCase(row as unknown as Record<string, unknown>) as unknown as IUser;
+    const { passwordHash: _pw, ...safeUser } = user;
+    return { success: true, statusCode: 200, data: safeUser };
+  },
+
+  // Update user profile (name, phone)
+  async updateProfile(userId: string, updates: { name?: string; phone?: string }): Promise<IResult<Omit<IUser, 'passwordHash'>>> {
+    const row = await authRepository.updateProfile(userId, updates);
+    if (!row) {
+      throw new AppError(ErrorCodes.UNAUTHORIZED, 'User not found', 404);
+    }
+    const user = toCamelCase(row as unknown as Record<string, unknown>) as unknown as IUser;
+    const { passwordHash: _pw, ...safeUser } = user;
+    logger.info('profile_updated', { userId, updates });
+    return { success: true, statusCode: 200, data: safeUser };
   },
 };
