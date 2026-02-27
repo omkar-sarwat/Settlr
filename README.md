@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/omkar-sarwat/Settlr/main/settlr-ui/public/settlr_logo.svg" alt="Settlr Logo" width="200" />
+  <img src="https://raw.githubusercontent.com/omkar-sarwat/Settlr/main/settlr_logo_final_clean.svg" alt="Settlr Logo" width="200" />
 
   <h1>Settlr</h1>
 
